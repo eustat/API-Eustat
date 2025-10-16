@@ -35,7 +35,7 @@ Jarraian, APIko sarrerako puntuetara deitzeko modua zehazten da, baita datuak ko
 
 `{hizkuntza}` parametroa zehaztu behar da. `eu` jarriz gero, taulen zerrenda euskeraz azalduko zaizu:
 
-👉 https://www.eustat.eus/bankupx/api/v1/eu/DB
+👉 [https://www.eustat.eus/bankupx/api/v1/eu/DB](https://www.eustat.eus/bankupx/api/v1/eu/DB)
 
 Erantzunaren itxura:
 
@@ -76,7 +76,7 @@ Metadatuek izenburu bat dute ("title") hasieran eta ondoren taulan azaltzen dire
 
 Adibidez:
 
-👉 https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_050403_cpra_tab_a_25.px
+👉 [https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_050403_cpra_tab_a_25.px](https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_050403_cpra_tab_a_25.px)
 
 Erantzunaren itxura:
 
@@ -249,9 +249,9 @@ Kontsulta hau egin ahal izateko, taulak zer aldagai eta balio dituen jakin behar
 
 `https://www.eustat.eus/bankupx/pxweb/{hizkuntza}/DB/-/{id}`
 
-Adibidez: 👉 https://www.eustat.eus/bankupx/pxweb/eu/DB/-/PX_170112_cpib_pib_a_01.px
+Adibidez: 👉 [https://www.eustat.eus/bankupx/pxweb/eu/DB/-/PX_170112_cpib_pib_a_01.px](https://www.eustat.eus/bankupx/pxweb/eu/DB/-/PX_170112_cpib_pib_a_01.px)
 
-Taula guztien zerrenda helbide honetan kontsulta daiteke  👉 https://www.eustat.eus/bankupx/pxweb/eu/DB/-/
+Taula guztien zerrenda helbide honetan kontsulta daiteke  👉 [https://www.eustat.eus/bankupx/pxweb/eu/DB/-/](https://www.eustat.eus/bankupx/pxweb/eu/DB/-/)
 
 Jarraian, hautaketa-laguntzailea erabiliz POST kontsulta bat egiteko urratsak azalduko ditugu:
 
@@ -260,7 +260,7 @@ Jarraian, hautaketa-laguntzailea erabiliz POST kontsulta bat egiteko urratsak az
 
 Balio konkretu batzuk aukeratu nahi ditugu honako taula honetan: "Euskal AEko barne produktu gordina (BPG-eskaintza), lurralde historiko, jarduera-adar (A-38), datu-mota eta neurri-motaren arabera. 1995 - 2023".
 
-Taula helbide honetan dago: https://eu.eustat.eus/bankupx/pxweb/eu/DB/-/PX_170112_cpib_pib_a_01.px
+Taula helbide honetan dago: [https://eu.eustat.eus/bankupx/pxweb/eu/DB/-/PX_170112_cpib_pib_a_01.px](https://eu.eustat.eus/bankupx/pxweb/eu/DB/-/PX_170112_cpib_pib_a_01.px)
 
 ![Aldagaiak eta balioak aukeratu](../img/BPG_aukeraketa.PNG)
 
@@ -270,7 +270,7 @@ Egin klik **Taula hau eskuragarri egin zure aplikazioan** atalean. Hor azalduko 
 
 Interfazeak APIan erabiliko den kodea sortzen eta editatzen laguntzen dio erabiltzaileari. Kontsulten kodea sortzeko pentsatuta dago, eta ez produkzioan erabiltzeko.
 
-Irteerako JSON fitxategiak irakurtzeko, formatu hori prozesatu dezakeen programa edo lengoaia bat erabili behar da. Tutorialak eta kode-adibideak sortu ditugu erabiltzaileei Eustaten APIaren erabilera errazteko [**R lengoaian**](../code_examples/eu/tutorial_R_eu.Rmd), [**Pythonen**](../code_examples/eu/tutorial_Python_eu.ipynb) eta [**Javascript-en**](https://eustat.github.io/API-Eustat/code_examples/eu/tutorial_highcharts_eu.html) 
+Irteerako JSON fitxategiak irakurtzeko, formatu hori prozesatu dezakeen programa edo lengoaia bat erabili behar da. Tutorialak eta kode-adibideak sortu ditugu erabiltzaileei Eustaten APIaren erabilera errazteko [**R lengoaian**](https://github.com/eustat/API-Eustat/blob/main/code_examples/eu/tutorial_R_eu.ipynb), [**Pythonen**](https://github.com/eustat/API-Eustat/blob/main/code_examples/eu/tutorial_Python_eu.ipynb) eta [**Javascript-en**](https://eustat.github.io/API-Eustat/code_examples/eu/tutorial_highcharts_eu.html) 
 
 
 ### Irteera-formatuak
