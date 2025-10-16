@@ -7,7 +7,7 @@ output: html_document
 
 El [banco de datos de Eustat](https://www.eustat.eus/banku/indexArbol.html) contiene una gran cantidad de datos sobre la sociedad, la economía y la población de la Comunidad Autónoma de Euskadi.
 
-Los datos son públicos y accesibles por distintos medios, entre ellos la API, [documentada aquí](https://github.com/uxue-sudupe/API-Eustat/blob/main/README.md). La API facilita enormemente el acceso y la reutilización de los datos. Sin embargo, a menos que se tenga experiencia previa en el acceso a API, su uso puede resultar complejo para un investigador, analista o estudiante.
+Los datos son públicos y accesibles por distintos medios, entre ellos la API, [documentada aquí](https://github.com/eustat/API-Eustat/blob/main/README.md). La API facilita enormemente el acceso y la reutilización de los datos. Sin embargo, a menos que se tenga experiencia previa en el acceso a API, su uso puede resultar complejo para un investigador, analista o estudiante.
 
 Este tutorial ofrece una guía rápida sobre cómo acceder a los datos de Eustat a través de su API y descargar su contenido en formato JSON (JavaScript Object Notation) u otro formato permitido. Se muestran ejemplos de cómo descargar los datos y su posterior procesado para obtener datasets que pueden ser tratados con R.
 
@@ -234,3 +234,4 @@ respuesta_xlsx <- POST(url, body = consulta, encode = "raw", content_type_json()
 writeBin(content(respuesta_xlsx, "raw"), "lengua_materna.xlsx")
 
 ```
+
