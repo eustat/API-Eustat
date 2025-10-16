@@ -1,0 +1,236 @@
+---
+title: "Tutorial API Eustat con R"
+output: html_document
+---
+
+**Tutorial de la API de Eustat con R**
+
+El [banco de datos de Eustat](https://www.eustat.eus/banku/indexArbol.html) contiene una gran cantidad de datos sobre la sociedad, la economía y la población de la Comunidad Autónoma de Euskadi.
+
+Los datos son públicos y accesibles por distintos medios, entre ellos la API, [documentada aquí](https://github.com/uxue-sudupe/API-Eustat/blob/main/README.md). La API facilita enormemente el acceso y la reutilización de los datos. Sin embargo, a menos que se tenga experiencia previa en el acceso a API, su uso puede resultar complejo para un investigador, analista o estudiante.
+
+Este tutorial ofrece una guía rápida sobre cómo acceder a los datos de Eustat a través de su API y descargar su contenido en formato JSON (JavaScript Object Notation) u otro formato permitido. Se muestran ejemplos de cómo descargar los datos y su posterior procesado para obtener datasets que pueden ser tratados con R.
+
+Es necesario utilizar algunos paquetes muy extendidos como `dplyr` o `httr`, y el paquete `rjstat`, específico para tratar con R datos en formato json-stat.
+
+```{r setup, message=FALSE, warning=FALSE}
+
+install.packages(c("httr", "jsonlite", "tidyr", "dplyr", "rjstat"))
+library(httr)
+library(jsonlite)
+library(tidyr)
+library(dplyr)
+library(rjstat)
+
+```
+
+**1. Obtener el Catálogo de datos Eustat (listado de tablas)**
+
+Es posible acceder al listado completo de los conjuntos de datos publicados por Eustat, con detalle de código identificador, título y fecha de última actualización.
+
+Las tablas son las que se encuentran en el banco de datos de Eustat: <https://www.eustat.eus/banku/indexArbol.html>
+
+Una llamada a la API se compone de una dirección web principal, una llamada a una función y un conjunto de parámetros. La dirección web principal del banco de datos es
+
+`https://www.eustat.eus/bankupx/api/v1/[lang]/DB`
+
+En este caso, la llamada a la API se hace con la función `GET`. El único parámetro necesario para obtener el catálogo, es el idioma `(lang)`. La respuesta se recibe en formato JSON.
+
+```{r}
+
+DB <- GET("https://www.eustat.eus/bankupx/api/v1/es/DB")
+Catálogo <- fromJSON(rawToChar(DB$content))
+head(Catálogo)
+
+```
+
+**Idiomas**
+
+Se pueden obtener los mismos datos en euskera o en inglés. Solo hay que modificar la dirección de la URL en la parte que contiene el idioma, `www.eustat.eus/bankupx/api/v1/[idioma]/DB`, y reemplazar *es* por *eu* o *en*. Por ejemplo, en euskera sería así:
+
+```{r}
+
+DB <- GET("https://www.eustat.eus/bankupx/api/v1/eu/DB")
+Katalogoa <- fromJSON(rawToChar(DB$content))
+head(Katalogoa)
+
+```
+
+**2. Obtener los metadatos de una tabla**
+
+Los metadatos de una tabla contienen información sobre el título de la tabla, cuáles son las dimensiones/variables de desagregación que aparecen en la tabla y los valores que toman. Los metadatos se guardan como código o como texto descriptivo.
+
+Para acceder a los metadatos de una tabla concreta, debemos añadirle a la url del banco de datos el código identificador "id" de la tabla de interés. La dirección tendrá este aspecto: `www.eustat.eus/bankupx/api/v1/[lang]/DB/[id]`
+
+Accedemos, por ejemplo, a los metadatos de la tabla que contiene los datos de "Población estimada de la C.A. de Euskadi por territorio histórico, sexo y año de nacimiento", que se encuentra en esta dirección:
+
+<https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010154_cepv1_ep17.px>
+
+```{r}
+
+metadatos<- GET("https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010154_cepv1_ep17.px")
+metadatos_población <- fromJSON(rawToChar(metadatos$content))
+metadatos_población
+```
+
+Los metadatos contienen el título de la tabla, junto con los códigos y literales de las variables y los valores. Puede resultar útil generar una tabla en la que se muestren las variables junto a sus valores, incluyendo la correspondencia entre códigos y etiquetas descriptivas.
+
+```{r}
+variables <- metadatos_población$variables
+
+variables_poblacion <- variables %>%
+  mutate(
+    values = lapply(values, unlist),
+    valueTexts = lapply(valueTexts, unlist)
+  ) %>%
+  unnest(c(values, valueTexts))
+
+variables_poblacion
+```
+
+**3. Obtener los datos de una tabla**
+
+***Hacer una consulta a una tabla para obtener todos los datos***
+
+Para disponer de los datos de las tablas, debemos realizar una consulta a la misma dirección del banco de datos con la función POST. Utilizamos el módulo pyjstat para trabajar con los datos que vamos a descargar en formato json-stat. En este ejemplo, consultamos todos los datos de la tabla del Producto interior bruto (PIB) de la C.A. de Euskadi (oferta) por territorio histórico, rama de actividad (A-38), tipo de dato y de medida.
+
+```{r}
+
+# URL del punto de acceso (endpoint) de la tabla
+
+url <- "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_170112_cpib_pib01d.px"
+
+# Cuerpo de la petición: sin filtros (toda la tabla). Por defecto, el resultado se obtiene en formato JSON-stat v.1.2
+consulta <- '{"query":[]}'
+
+d.tmp <- POST(url , body = consulta, encode = "json", verbose())
+tabla <- fromJSONstat(content(d.tmp, "text"), naming = "label", use_factors = FALSE, silent = FALSE)
+PIB <- tabla[[1]]
+head(PIB)
+```
+
+**Obtener los datos de una tabla, con códigos**
+
+Es posible que nos interese disponer de estos datos con los códigos de las variables, y no con las etiquetas descriptivas o literales. En ese caso, solicitamos que los nombres se capturen como código (naming="id") y no como texto (naming="label").
+
+```{r}
+tabla <- fromJSONstat(content(d.tmp, "text"), naming = "id", use_factors = FALSE, silent = FALSE)
+PIB_codigo <- tabla[[1]]  # Nos interesa solo la primera lista de la tabla
+head(PIB_codigo)
+```
+
+**Obtener los datos de una tabla, con una consulta de datos**
+
+Solicitar demasiados datos para luego tener que desechar la mitad es desperdiciar espacio y recursos. Por ello, cuando nos interesa disponer de los datos de una selección de valores, y no todo el contenido de las tablas, debemos realizar una consulta seleccionando las variables y valores de interés.
+
+Para definir la consulta, es necesario conocer el nombre/código de las variables y los valores, que es la información que hemos recibido en el punto anterior, 2. Obtener los metadatos de una tabla.
+
+Pero para facilitar este paso, la propia web de Eustat dispone de una interfaz de selección de variables y valores para cada tabla, donde podremos seleccionar los datos que nos interesan fácilmente, y obtener la consulta en formato JSON.
+
+Por ejemplo, si queremos datos de la tasa de paro por sexo, iríamos a la página en la que se seleccionan las variables para esta tabla del banco de datos:
+
+<https://www.eustat.eus/bankupx/pxweb/es/DB/-/PX_050403_cpra_tab01.px>
+
+Y hacemos la selección que nos interesa: seleccionamos los datos de la tasa de paro para la C.A. de Euskadi, los 2 sexos (y el total) y los datos trimestrales de los 3 últimos años.
+
+***Ejemplo de Selección***
+
+![](https://raw.githubusercontent.com/uxue-sudupe/API-Eustat/main/img/Paro_seleccion.png){width="600"}
+
+Tras hacer la selección pulsamos "Continuar" y "Disponer de esta tabla en su aplicación". En este apartado aparecerán tanto la url a la que hay que hacer la petición como la consulta json, que será la que incluiremos en nuestro código.
+
+![](https://raw.githubusercontent.com/uxue-sudupe/API-Eustat/main/img/Paro_consulta.png){width="600"}
+
+```{r}
+url <- "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_050403_cpra_tab01.px"
+consulta <- '{"query": [{"code": "tasa (%)","selection": {"filter": "item", "values": ["30"] }},
+        {"code": "territorio histórico","selection": {"filter": "item", "values": [ "00"]}},
+        {"code": "trimestre","selection": {"filter": "item","values": ["20", "30", "40","50" ]}},
+        {"code": "periodo","selection": {"filter": "item","values": ["2023", "2024","2025" ]}}],
+         "response": {"format": "json-stat"}} '
+
+d.tmp <- POST(url , body = consulta, encode = "json", verbose())
+tabla <- fromJSONstat(content(d.tmp, "text"), naming = "label", use_factors = FALSE, silent = FALSE)
+Paro <- tabla[[1]]
+head(Paro)
+```
+
+**Modificaciones a la consulta**
+
+Cuando se realiza `"filter": "item"` sobre una variable, se seleccionan los valores que se quieren filtrar (uno o varios).
+
+Si se seleccionan todos los valores, no se está filtrando sobre esa variable, y no aparecerá en la consulta. Tiene el mismo efecto que eliminar la linea que empieza por `{"code":"variable"....}` como haremos ahora con la línea de código de la variable "territorio histórico".
+
+También podemos usar el filtro `"top"`, para seleccionar unicamente un número determinado con los últimos valores de la variable. Este filtro `"top"` se utiliza principalmente con la variable "periodo", "año" o similares.
+
+```{r}
+
+url = "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_050403_cpra_tab01.px"
+
+query = '{"query": [{"code": "tasa (%)","selection": {"filter": "item", "values": ["30"] }},
+    #   {"code": "territorio histórico","selection": {"filter": "*", "values": [ "*"]}},    si eliminamos esta línea, no filtramos la variable "territorio histórico"
+        {"code": "trimestre","selection": {"filter": "item","values": ["20", "30", "40","50" ]}},
+        {"code": "periodo","selection": {"filter": "top","values": ["2"]}}],             #  filtro "top", últimos 2 valores de la variable "periodo"
+         "response": {"format": "json-stat"}}'
+
+d.tmp <- POST(url , body = consulta, encode = "json", verbose())
+tabla <- fromJSONstat(content(d.tmp, "text"), naming = "label", use_factors = FALSE, silent = FALSE)
+Paro <- tabla[[1]]
+head(Paro)
+
+```
+
+**Otros formatos de salida**
+
+La salida por defecto de las peticiones API a los datos de las tablas es JSON-stat (versión 1.2). El formato JSON es el más común en APIs, permite un tratamiento flexible de los datos, adecuado para procesamiento automático en scripts (R, Python, etc.), y evita ambigüedades que pueden presentarse en archivos planos como CSV.
+
+También es posible descargar los datos pedidos por API en formatos como csv y excel. Estas salidas pueden ser más adecuadas con usuarios finales no técnicos, en procesos en los que se necesitan csv o excel como entrada (creación de dashboards desde csv/excel) o cuando el objetivo no es el análisis sino facilitar el acceso al público de la datos descargados por API.
+
+A continuación se muestran las salidas csv (3 tipos) y excel, y se guarda una copia de cada una.
+
+```{r}
+# Salida en CSV - texto plano
+
+url <- "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010901_cecv_ni11_1.px"
+consulta <- '{"query": [], "response": {"format": "csv"}}'
+
+respuesta_csv <- POST(url, body = consulta)
+writeBin(content(respuesta_csv, "raw"), "lengua_materna.csv")
+
+```
+
+```{r}
+# Salida en CSV2 - formato "pivot-friendly", compatible con tablas dinámicas
+
+url <- "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010901_cecv_ni11_1.px"
+consulta <- '{"query": [], "response": {"format": "csv2"}}'
+
+respuesta_csv2 <- POST(url, body = consulta, encode = "raw", content_type_json())
+
+writeBin(content(respuesta_csv2, "raw"), "lengua_materna_csv2.csv")
+
+```
+
+```{r}
+# Salida en CSV3 - igual que CSV2, pero con códigos en lugar de texto
+
+url <- "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010901_cecv_ni11_1.px"
+consulta <- '{"query": [], "response": {"format": "csv3"}}'
+
+respuesta_csv3 <- POST(url, body = consulta, encode = "raw", content_type_json())
+
+writeBin(content(respuesta_csv3, "raw"), "lengua_materna_csv3.csv")
+
+```
+
+```{r}
+# Salida en Excel
+
+url <- "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010901_cecv_ni11_1.px"
+consulta <- '{"query": [], "response": {"format": "xlsx"}}'
+
+respuesta_xlsx <- POST(url, body = consulta, encode = "raw", content_type_json())
+
+writeBin(content(respuesta_xlsx, "raw"), "lengua_materna.xlsx")
+
+```

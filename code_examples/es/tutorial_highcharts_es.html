@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cómo crear un gráfico simple a partir de la API de Eustat, JavaScript y Highcharts</title>
+
+  <!-- Estilo tipo Markdown / GitHub -->
+  <style>
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 0 1em;
+      line-height: 1.7;
+    }
+    h1, h2 {
+      color: #1a1a1a;
+      margin-top: 2em;
+    }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    code, pre {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95em;
+    }
+    pre {
+      background-color: #f6f8fa;
+      border: 1px solid #d1d5da;
+      border-radius: 6px;
+      padding: 1em;
+      overflow-x: auto;
+    }
+    .nota {
+      margin-top: 2em;
+      font-size: 0.95em;
+      color: #555;
+      font-style: italic;
+    }
+    #container {
+      margin-top: 2em;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 1em;
+      border-radius: 8px;
+    }
+  </style>
+
+  <!-- Librerías -->
+  <script src="https://cdn.jsdelivr.net/npm/jsonstat@0.13.3/json-stat.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+
+  <h1>Cómo crear un gráfico simple a partir de la API de Eustat, <em>JavaScript</em> y Highcharts</h1>
+
+  <p>
+    Este corto tutorial muestra cómo crear una visualización dinámica con Highcharts a partir de una consulta a la API de Eustat.
+    Se presenta un ejemplo básico con el objetivo de incentivar el uso de la API en la visualización de estadísticas.
+  </p>
+
+  <h2>1. Estructura básica del HTML</h2>
+  <p>
+    Highcharts es una biblioteca <em>JavaScript</em> de gráficos interactivos que permite generar visualizaciones atractivas con poco esfuerzo: líneas, barras, mapas, áreas, etc.
+    Para ver gráficos más elaborados y su código, puedes visitar la <a href="https://www.highcharts.com/demo" target="_blank">galería de ejemplos de Highcharts</a>.
+  </p>
+  <p>
+    Una de las ventajas de Highcharts es que se integra fácilmente con APIs y necesita poco HTML. Para este gráfico de líneas solo necesitaremos una página con una
+    referencia a las librerías necesarias y un contenedor para el gráfico.
+  </p>
+
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8" /&gt;
+  &lt;title&gt;Chart&lt;/title&gt;
+  &lt;script src="http://code.jquery.com/jquery-1.9.1.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id="container" style="height: 400px;"&gt;&lt;/div&gt;
+  &lt;script src="http://code.highcharts.com/highcharts.js"&gt;&lt;/script&gt;
+  &lt;script type="text/javascript"&gt;
+    // Aquí se inserta el código para obtener datos de la API y dibujar el gráfico
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h2>2. Consulta a la API de Eustat</h2>
+  <p>
+    La siguiente consulta <em>JSON</em> se ha generado utilizando la interfaz de selección de variables y valores de una tabla del Banco de Datos de Eustat:
+    <a href="https://www.eustat.eus/bankupx/pxweb/es/DB/-/PX_010154_cepv1_ep06b.px" target="_blank">https://www.eustat.eus/bankupx/pxweb/es/DB/-/PX_010154_cepv1_ep06b.px</a>.
+  </p>
+  <p>
+    El asistente para la selección de valores permite seleccionar los datos que nos interesan fácilmente y obtener la consulta en formato <em>JSON</em>. Seleccionamos
+    la población total de la C.A. de Euskadi, Araba/Álava, Bizkaia y Gipuzkoa, a 1 de enero para los años 2001–2024. Esta consulta puede integrarse directamente
+    dentro del bloque <code>&lt;script&gt;</code> del HTML. El <em>endpoint</em> espera una solicitud <em>POST</em> con este contenido.
+  </p>
+
+  <pre><code>{
+  const url = "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010154_cepv1_ep06b.px";
+  const query = {
+    "query": [
+      {
+        "code": "ámbitos territoriales",
+        "selection": {
+          "filter": "item",
+          "values": ["00001", "01", "48", "20"]
+        }
+      },
+      {
+        "code": "grandes grupos de edad cumplida",
+        "selection": {
+          "filter": "item",
+          "values": ["10"]
+        }
+      },
+      {
+        "code": "sexo",
+        "selection": {
+          "filter": "item",
+          "values": ["10"]
+        }
+      },
+      {
+        "code": "periodo",
+        "selection": {
+          "filter": "item",
+          "values": [
+            "20010101", "20020101", ..., "20240101"
+          ]
+        }
+      }
+    ],
+    "response": {
+      "format": "json-stat"
+    }
+  }
+}</code></pre>
+
+  <h2>3. Gráfico dinámico</h2>
+   <p>
+     A continuación, deberemos especificar el título del gráfico, el nombre de los ejes y las unidades. El formato del código necesario puede verse en la siguiente página: 
+     <a href="https://www.highcharts.com/demo/highcharts/line-chart" target="_blank">https://www.highcharts.com/demo/highcharts/line-chart</a> 
+     (haz clic en el botón <strong>Code</strong>). Utilizando <em>JavaScript</em> y Highcharts, hemos creado un gráfico dinámico simple. 
+     Los datos pueden actualizarse en todo momento gracias a la consulta <em>JSON</em> realizada mediante <em>POST</em> a la API de Eustat.
+   </p>
+
+  <div id="container" style="width: 100%; height: 500px;"></div>
+
+  <p class="nota">
+    💡 Nota: haz clic con el botón derecho del ratón y selecciona <em>"Ver código fuente de la página"</em> para obtener el código HTML completo del gráfico y su integración con la API.
+  </p>
+
+  <script>
+    const url = "https://www.eustat.eus/bankupx/api/v1/es/DB/PX_010154_cepv1_ep06b.px";
+    const query = {
+      "query": [
+        {
+          "code": "ámbitos territoriales",
+          "selection": {
+            "filter": "item",
+            "values": ["00001", "01", "48", "20"]
+          }
+        },
+        {
+          "code": "grandes grupos de edad cumplida",
+          "selection": {
+            "filter": "item",
+            "values": ["10"]
+          }
+        },
+        {
+          "code": "sexo",
+          "selection": {
+            "filter": "item",
+            "values": ["10"]
+          }
+        },
+        {
+          "code": "periodo",
+          "selection": {
+            "filter": "item",
+            "values": [
+              "20010101", "20020101", "20030101", "20040101",
+              "20050101", "20060101", "20070101", "20080101",
+              "20090101", "20100101", "20110101", "20120101",
+              "20130101", "20140101", "20150101", "20160101",
+              "20170101", "20180101", "20190101", "20200101",
+              "20210101", "20220101", "20230101", "20240101"
+            ]
+          }
+        }
+      ],
+      "response": {
+        "format": "json-stat"
+      }
+    };
+
+    $.post(url, JSON.stringify(query), function (obj) {
+      const ds = JSONstat(obj).Dataset(0);
+      const tiempo = ds.Dimension({ role: "time" })[0];
+      const etiquetas = tiempo.id.map(id => tiempo.Category(id).label);
+
+      const territorios = {
+        "00001": "C.A. de Euskadi",
+        "01": "Araba/Álava",
+        "48": "Bizkaia",
+        "20": "Gipuzkoa"
+      };
+
+      const series = Object.keys(territorios).map(cod => ({
+        name: territorios[cod],
+        data: ds.Data({ "ámbitos territoriales": cod }, false)
+      }));
+
+      Highcharts.chart('container', {
+        chart: { type: 'line' },
+        title: {
+          text: 'Evolución de la población de la C.A. de Euskadi y sus territorios históricos (1 de enero, 2001–2024)'
+        },
+        xAxis: {
+          categories: etiquetas,
+          title: { text: 'Fecha' },
+          tickInterval: 1
+        },
+        yAxis: {
+          title: { text: 'Población' }
+        },
+        tooltip: {
+          valueSuffix: ' hab.'
+        },
+        series: series
+      });
+    });
+  </script>
+
+</body>
+</html>

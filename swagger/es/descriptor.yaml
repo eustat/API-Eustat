@@ -1,0 +1,230 @@
+openapi: 3.0.0
+info:
+  title: API de Eustat
+  description: La API de Eustat proporciona acceso directo y automatizado a los datos estadísticos oficiales de la C.A. de Euskadi, permitiendo consultar, filtrar y descargar información estructurada para su análisis y reutilización.
+  version: 1.0.0
+
+servers:
+  - url: https://www.eustat.eus/bankupx/api/v1
+    description: Servidor de datos abiertos de Eustat
+
+paths:
+  /{lang}/DB:
+    get:
+      tags:
+        - Catálogo de datos
+      summary: Consultar catálogo de tablas de datos
+      description: Devuelve el catálogo de tablas del banco de datos en formato JSON.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Idioma de la respuesta
+          schema:
+            type: string
+            enum: [es, eu, en]
+            default: es
+      responses:
+        '200':
+          description: Catálogo de datos obtenido con éxito
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Identificador del conjunto de datos
+                    type:
+                      type: string
+                      description: Tipo de recurso
+                    text:
+                      type: string
+                      description: Descripción del conjunto de datos
+                    updated:
+                      type: string
+                      format: date-time
+                      description: Fecha de última actualización
+              example:
+                - id: "PX_feinem_inem06.px"
+                  type: "t"
+                  text: "Paro registrado de la C.A. de Euskadi por ámbitos territoriales y sexo"
+                  updated: "2021-02-17T10:04:22"
+                - id: "PX_fepycl_pc02cm.px"
+                  type: "t"
+                  text: "Índice general de precios al consumo (IPC) por Territorio Histórico"
+                  updated: "2021-02-16T11:15:00"
+        '404':
+          description: Catálogo no encontrado
+
+  /{lang}/DB/{id}:
+    get:
+      tags:
+        - Metadatos de una tabla
+      summary: Obtener metadatos de una tabla
+      description: Devuelve los metadatos de una tabla específica en formato JSON.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Idioma de la respuesta
+          schema:
+            type: string
+            enum: [es, eu, en]
+            default: es
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la tabla (por ejemplo PX_170115_ccet_cet01tb.px)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Metadatos obtenidos con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: Título del conjunto de datos
+                  variables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: Código de la variable
+                        text:
+                          type: string
+                          description: Descripción de la variable
+                        values:
+                          type: array
+                          items:
+                            type: string
+                          description: Lista de valores disponibles
+                        valueTexts:
+                          type: array
+                          items:
+                            type: string
+                          description: Etiquetas descriptivas de los valores
+              example:
+                title: "Population of the Basque Country by territorial area, large age groups and sex"
+                variables:
+                  - code: "ámbitos territoriales"
+                    text: "territorial area"
+                    values: ["00001", "01", "48", "20"]
+                    valueTexts: ["Basque Country", "Araba/Álava", "Bizkaia", "Gipuzkoa"]
+                  - code: "sexo"
+                    text: "sex"
+                    values: ["10", "20", "30"]
+                    valueTexts: ["Total", "Men", "Women"]
+                  - code: "periodo"
+                    text: "period"
+                    values: ["20010101", "20020101"]
+                    valueTexts: ["2001/01/01", "2002/01/01"]
+        '404':
+          description: Tabla no encontrada
+
+    post:
+      tags:
+        - Datos de una tabla
+      summary: Obtener datos de una tabla
+      description: |
+        Realiza una consulta POST para obtener datos de una tabla del banco de datos en formato JSON-stat. Se puede consultar toda la tabla con el query vacío: {"query": []}.
+
+        En caso de querer realizar una consulta específica, hay que realizarla en formato JSON. La interfaz de selección de la tabla puede ayudar a configurar la consulta. La interfaz de selección se encuentra en:
+
+        **https://www.eustat.eus/bankupx/pxweb/{lang}/DB/-/{id}**
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+            default: es
+        - name: id
+          in: path
+          required: true
+          description: Identificador de la tabla (por ejemplo, PX_010123_cepv3_lhc04.px)
+          schema:
+            type: string
+      requestBody:
+        description: JSON de la consulta para seleccionar variables específicas de la tabla.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      selection:
+                        type: object
+                        properties:
+                          filter:
+                            type: string
+                          values:
+                            type: array
+                            items:
+                              type: string
+                response:
+                  type: object
+                  properties:
+                    format:
+                      type: string
+              example:
+                query:
+                  - code: "lengua"
+                    selection:
+                      filter: "item"
+                      values: ["20"]
+                  - code: "lugar de nacimiento"
+                    selection:
+                      filter: "item"
+                      values: ["00"]
+                  - code: "periodo"
+                    selection:
+                      filter: "item"
+                      values: ["2016", "2021"]
+                response:
+                  format: "json-stat"
+      responses:
+        '200':
+          description: Datos obtenidos con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                dataset:
+                  dimension:
+                    id: ["territory", "sex", "time"]
+                    size: [1, 1, 2]
+                    territory:
+                      category:
+                        index: {"00001": 0}
+                        label: {"00001": "Basque Country"}
+                    sex:
+                      category:
+                        index: {"10": 0}
+                        label: {"10": "Total"}
+                    time:
+                      category:
+                        index: {"20200101": 0, "20210101": 1}
+                        label: {"20200101": "2020/01/01", "20210101": "2021/01/01"}
+                  value: [100, 150]
+        '400':
+          description: Error en la solicitud
+        '404':
+          description: Tabla no encontrada

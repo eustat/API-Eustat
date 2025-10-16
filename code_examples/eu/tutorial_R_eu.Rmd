@@ -1,0 +1,247 @@
+---
+title: "Eustaten APIaren tutoriala R-rekin"
+output: html_document
+---
+
+**Nola erabili Eustaten APIa R-rekin**
+
+[Eustaten datu bankuak](https://eu.eustat.eus/banku/indexArbol.html) Euskal Autonomia Erkidegoko gizarteari, ekonomiari eta biztanleriari buruzko datu ugari ditu.
+
+Datuak publikoak dira eta modu desberdinetan eskura daitezke, besteak beste,  [hemen dokumentatutako](https://github.com/uxue-sudupe/API-Eustat/blob/main/README.md) APIaren bidez. APIak izugarri errazten du datuak eskuratzea eta berrerabiltzea. Hala ere, APIekin aurretik esperientziarik izan ezean, zaila izan daiteke ikertzaile, analista edo ikasle batentzat hura erabiltzea.
+
+Tutorial honek gida azkar bat eskaintzen du Eustaten datuak APIaren bidez eskuratzeko. Datuak nola deskargatu, prozesatu eta Dataframe formatuko taulak nola sortu erakusten du.
+
+Oso zabalduta dauden liburutegi batzuk erabili behar dira, `dplyr` edo `httr` adibidez, eta `rjstat` liburutegia, json-stat formatuan dauden datuak R-rekin tratatzeko espezifikoa dena.
+
+```{r setup, message=FALSE, warning=FALSE}
+
+install.packages(c("httr", "jsonlite", "tidyr", "dplyr", "rjstat"))
+library(httr)
+library(jsonlite)
+library(tidyr)
+library(dplyr)
+library(rjstat)
+
+```
+
+**1. Eustaten datuen katalogoa (taulen zerrenda) eskuratu**
+
+Posible da Eustatek argitaratutako datu multzoen (taulen) zerrenda osoa ikustea eta jeistea, taula bakoitzaren identifikazio-kodea, izenburua eta azken eguneratze-data barne.
+
+Eustaten datu bankuan dauden taulek osatzen dute katalogoa: <https://eu.eustat.eus/banku/id_All/indexArbol.html>
+
+APIari egiten zaion eskaera batek hiru elementu nagusi izaten ditu: web helbide nagusia, funtziorako dei bat eta parametro multzo bat. Eustaten Datu Bankuko APIaren helbide nagusia honakoa da:
+
+`https://www.eustat.eus/bankupx/api/v1/[lang]/DB`
+
+Kasu honetan, APIari deia `GET` metodoaren bidez egiten zaio. Katalogoa lortzeko behar den parametro bakarra hizkuntza da `(lang)`. Erantzuna JSON formatuan jasotzen da.
+
+```{r}
+
+# Eustaten datuen katalogoko sarbide puntua (endpoint)
+
+DB <- GET("https://www.eustat.eus/bankupx/api/v1/eu/DB")
+Katalogoa <- fromJSON(rawToChar(DB$content))
+head(Katalogoa)
+
+```
+
+**Hizkuntzak**
+
+Zerrenda bera gaztelaniaz edo ingelesez ere eska daiteke. Horretarako, URLko hizkuntza parametroa aldatzea besterik ez da behar: `www.eustat.eus/bankupx/api/v1/[lang]/DB`
+
+`[lang]` parametroa honako hiru aukeretako batekin ordezka daiteke: *eu* (euskera), *es* (gaztelania) edo *en* (ingelesa).
+
+Adibidez, gaztelaniazko katalogoa eskuratzeko URL hau erabiliko litzateke:
+
+```{r}
+
+DB <- GET("https://www.eustat.eus/bankupx/api/v1/es/DB")
+Catálogo <- fromJSON(rawToChar(DB$content))
+head(Catálogo)
+
+```
+
+**2. Taula baten metadatuak eskuratu**
+
+Taula bateko metadatuek taularen izenburuari buruzko informazioa, taulan agertzen diren desagregazio-dimentsioak/aldagaiak eta hartzen dituzten balioei buruzko informazioa jasotzen dute. Metadatuetan kodeak eta testu deskribatzaileak datoz.
+
+Taula jakin bateko metadatuetara sartzeko, interesatzen zaigun taularen `"id"` identifikazio kodea gehitu behar diogu datu bankuko url-ari. Helbideak egitura hau izango du:
+
+`www.eustat.eus/bankupx/api/v1/[lang]/DB/[id]`
+
+Adibidez, taula hau interesatzen bazaigu: Euskal AEko biztanleria zenbatetsia, lurralde historikoaren, sexuaren eta jaioturtearen arabera, helbide honi egin behar diogu dei:
+
+<https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_010154_cepv1_ep17.px>
+
+```{r}
+
+metadatuak<- GET("https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_010154_cepv1_ep17.px")
+biztanleria_metadatuak <- fromJSON(rawToChar(metadatuak$content))
+biztanleria_metadatuak
+```
+
+Metadatuek taularen izenburua dute, aldagaien eta balioen kodeekin eta literalekin batera. Baliagarria izan daiteke aldagaiak beren balioekin batera erakusten dituen taula bat sortzea, kodeen eta etiketa deskribatzaileen arteko korrespondentzia erakusten dituena.
+
+```{r}
+aldagaiak <- biztanleria_metadatuak$variables
+
+biztanleria_aldagaiak <- aldagaiak %>%
+  mutate(
+    values = lapply(values, unlist),
+    valueTexts = lapply(valueTexts, unlist)
+  ) %>%
+  unnest(c(values, valueTexts))
+
+biztanleria_aldagaiak
+```
+
+**3. Taula bateko datuak eskuratu**
+
+***Taula bateko datu guztiak eskuratzeko kontsulta***
+
+Tauletako datuak eskuratzeko, kontsulta bat egin behar dugu aurreko puntuak ikusi dugun helbide berean, POST funtzioarekin.
+
+pyjstat izeneko modulua erabiliko dugu json-stat formatuan deskargatuko ditugun datuekin lan egiteko. Adibide honetan, "Euskal AEko barne produktu gordina (BPG-eskaintza), lurralde historiko, jarduera-adar (A-38), datu-mota eta neurri-motaren arabera" taularen datu guztiak kontsultatuko ditugu.
+
+```{r}
+
+# Taulako sarbide puntua (endpoint)
+
+url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_170112_cpib_pib01d.px"
+
+# Eskaeraren edukia: filtrorik gabe (taula osoa). Emaitza JSON-stat v.1.2 formatuan lortzen da, besterik esaten ez bada
+kontsulta <- '{"query":[]}'
+
+d.tmp <- POST(url , body = kontsulta, encode = "json", verbose())
+taula <- fromJSONstat(content(d.tmp, "text"), naming = "label", use_factors = FALSE, silent = FALSE)
+BPG <- taula[[1]]
+head(BPG)
+```
+
+**Taula bateko datuak eskatu, kodeekin**
+
+Baliteke datu horiek aldagaien kodeekin eskuratu nahi izatea, eta ez etiketa deskribatzaileekin edo literalekin. Kasu horretan, izenak kode gisa (naming = "id") jeisteko eskatuko dugu, eta ez testu gisa (naming = "label").
+
+```{r}
+taula<- fromJSONstat(content(d.tmp, "text"), naming = "id", use_factors = FALSE, silent = FALSE)
+BPG_kodeekin <- taula[[1]]  # Taularen aurrenengo zerrenda bakarrik interesatzen zaigu
+head(BPG_kodeekin)
+```
+
+**Taula bateko datuen selekzio bat eskuratu**
+
+Datu gehiegi eskatzea, gero erdia bota behar izateko, espazioa eta baliabideak alferrik galtzea da. Horregatik, taularen datuen parte bat bakarrik interesatzen zaigunean, eta ez taularen eduki osoa, kontsulta bat egin behar dugu intereseko aldagaiak eta balioak hautatuta.
+
+Kontsulta definitzeko, aldagaien izena/kodea eta balioak ezagutu behar dira. Aurreko puntuan ikusi dugu nola lortu taula baten metadatuak.
+
+Baina urrats hori errazteko, Eustaten webguneak berak aldagaiak eta balioak hautatzeko interfaze bat du taula bakoitzarentzat. Interfaze horretan, erraz aukeratu ahal izango ditugu interesatzen zaizkigun datuak, eta kontsulta JSON formatuan lortu ahal izango dugu.
+
+Adibidez, sexuaren araberako langabezia-tasaren datuak nahi izanez gero, datu bankuko taula honetako aldagaiak hautatzen diren orrira joango ginateke:
+
+<https://www.eustat.eus/bankupx/pxweb/eu/DB/-/PX_050403_cpra_tab01.px>
+
+Eta interesatzen zaigun hautaketa egingo dugu: Euskal AEko langabezia-tasaren datuak, 2 sexuak (eta guztizkoa) eta azken 3 urteetako hiruhilekoko datuak hautatuko ditugu.
+
+***Hautaketaren adibidea***
+
+![](https://raw.githubusercontent.com/uxue-sudupe/API-Eustat/main/img/Langabezia_aukeraketa.png){width="600"}
+
+Aukeraketa egin ondoren, `"Jarraitu"` eta `"Taula hau eskuragarri egin zure aplikazioan"` sakatuko dugu. Atal honetan, eskaera egin behar zaion URLa eta json kontsulta agertuko dira. Kontsulta hori gure kodean sartuko dugu.
+
+***Kontsultaren adibidea***
+
+![](https://raw.githubusercontent.com/uxue-sudupe/API-Eustat/main/img/Langabezia_kontsulta.png){width="600"}
+
+```{r}
+url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_050403_cpra_tab01.px"
+consulta <- '{"query": [{"code": "tasa (%)","selection": {"filter": "item", "values": ["30"] }},
+        {"code": "territorio histórico","selection": {"filter": "item", "values": [ "00"]}},
+        {"code": "trimestre","selection": {"filter": "item","values": ["20", "30", "40","50" ]}},
+        {"code": "periodo","selection": {"filter": "item","values": ["2023", "2024","2025" ]}}],
+         "response": {"format": "json-stat"}} '
+
+d.tmp <- POST(url , body = consulta, encode = "json", verbose())
+taula <- fromJSONstat(content(d.tmp, "text"), naming = "label", use_factors = FALSE, silent = FALSE)
+Langabezia <- taula[[1]]
+head(Langabezia)
+```
+
+**Aldaketak kontsultan**
+
+`Filter: item` egiten denean aldagai baten gainean, filtratu nahi diren balioak hautatzen dira (bat edo gehiago).
+
+Balio guztiak hautatzen badira, ez da aldagai horren gainean filtratzen, eta ez da kontsultan agertuko. Efektu bera du "lurralde historikoa" aldagaiaren kode-lerroarekin orain egingo dugun bezala `{"code":"variable"....}` kodearekin hasten den lerroa ezabatzeak ere.
+
+`Top` filtroa ere erabil dezakegu, aldagaiaren azken balioak bakarrik hautatzeko. Top filtroa batez ere "aldia", "urtea" edo antzeko aldagaiekin erabiltzen da.
+
+```{r}
+
+url = "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_050403_cpra_tab01.px"
+
+kontsulta = '{"query": [{"code": "tasa (%)","selection": {"filter": "item", "values": ["30"] }},
+        {"code": "trimestre","selection": {"filter": "item","values": ["20", "30", "40","50" ]}},
+        {"code": "periodo","selection": {"filter": "top","values": ["2"]}}],      
+         "response": {"format": "json-stat"}}'
+
+d.tmp <- POST(url , body = kontsulta, encode = "json", verbose())
+taula <- fromJSONstat(content(d.tmp, "text"), naming = "label", use_factors = FALSE, silent = FALSE)
+Langabezia <- taula[[1]]
+head(Langabezia)
+
+```
+
+**Irteerako beste formatu batzuk**
+
+Tauletako datuetarako irteera lehenetsia JSON-stat da (1.2 bertsioa). JSON formatua da ohikoena APIetan, datuen tratamendu malgua ahalbidetzen duelako, script-etan (R, Python, etab.) automatikoki prozesatzeko egokia delako, eta CSV bezalako artxibo lauetan aurkez daitezkeen anbiguotasunak saihesten dituelako.
+
+APIari eskatutako datuak CSV eta excel formatuetan ere deskarga daitezke. Irteera horiek egokiagoak izan daitezke erabiltzaile ez hain teknikoentzat, sarrera gisa csv edo excel behar diren prozesuentzat (csv/excel bidez dashboard-ak sortzeko adibidez) edo helburua analisia ez denean, baizik eta APIak ematen dituen datuen deskarga erraztea publikoari.
+
+Jarraian csv (3 mota) eta excel irteerak nola eskatu eta zein itxura duten azaltzen da. Irteera bakoitzaren kopia bat gordetzen da.
+
+```{r}
+# Irteera CSV - testu laua
+
+url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_010901_cecv_ni11_1.px"
+kontsulta <- '{"query": [], "response": {"format": "csv"}}'
+
+erantzuna_csv <- POST(url, body = kontsulta)
+writeBin(content(erantzuna_csv, "raw"), "ama_hizkuntza.csv")
+
+```
+
+```{r}
+#  CSV2 moduko irteera - "pivot-friendly" formatua, taula dinamikoentzat egokia
+
+url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_010901_cecv_ni11_1.px"
+kontsulta <- '{"query": [], "response": {"format": "csv2"}}'
+
+erantzuna_csv2 <- POST(url, body = kontsulta, encode = "raw", content_type_json())
+
+writeBin(content(erantzuna_csv2, "raw"), "ama_hizkuntza_csv2.csv")
+
+```
+
+```{r}
+# CSV3 moduko irteera - CSV2 bezala, baina kodeekin testua izan beharrean
+
+url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_010901_cecv_ni11_1.px"
+kontsulta <- '{"query": [], "response": {"format": "csv3"}}'
+
+erantzuna_csv3 <- POST(url, body = kontsulta, encode = "raw", content_type_json())
+
+writeBin(content(erantzuna_csv3, "raw"), "ama_hizkuntza_csv3.csv")
+
+```
+
+```{r}
+# Excel irteera
+
+url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_010901_cecv_ni11_1.px"
+kontsulta <- '{"query": [], "response": {"format": "xlsx"}}'
+
+erantzuna_xlsx <- POST(url, body = kontsulta, encode = "raw", content_type_json())
+
+writeBin(content(erantzuna_xlsx, "raw"), "ama_hizkuntza.xlsx")
+
+```
