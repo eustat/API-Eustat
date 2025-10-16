@@ -270,7 +270,7 @@ Egin klik **Taula hau eskuragarri egin zure aplikazioan** atalean. Hor azalduko 
 
 Interfazeak APIan erabiliko den kodea sortzen eta editatzen laguntzen dio erabiltzaileari. Kontsulten kodea sortzeko pentsatuta dago, eta ez produkzioan erabiltzeko.
 
-Irteerako JSON fitxategiak irakurtzeko, formatu hori prozesatu dezakeen programa edo lengoaia bat erabili behar da. Tutorialak eta kode-adibideak sortu ditugu erabiltzaileei Eustaten APIaren erabilera errazteko [**R lengoaian**](../code_examples/eu/tutorial_R_eu.Rmd), [**Pythonen**](../code_examples/eu/tutorial_Python_eu.ipynb) eta [**Javascript-en**](https://uxue-sudupe.github.io/API-Eustat/code_examples/eu/tutorial_highcharts_eu.html) 
+Irteerako JSON fitxategiak irakurtzeko, formatu hori prozesatu dezakeen programa edo lengoaia bat erabili behar da. Tutorialak eta kode-adibideak sortu ditugu erabiltzaileei Eustaten APIaren erabilera errazteko [**R lengoaian**](../code_examples/eu/tutorial_R_eu.Rmd), [**Pythonen**](../code_examples/eu/tutorial_Python_eu.ipynb) eta [**Javascript-en**](https://eustat.github.io/API-Eustat/code_examples/eu/tutorial_highcharts_eu.html) 
 
 
 ### Irteera-formatuak
