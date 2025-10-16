@@ -37,7 +37,7 @@ El campo `{idioma}` corresponde al idioma. Es obligatorio y puede tomar los sigu
 
 Listado de tablas en español:
 
-👉 https://www.eustat.eus/bankupx/api/v1/es/DB
+👉  [https://www.eustat.eus/bankupx/api/v1/es/DB](https://www.eustat.eus/bankupx/api/v1/es/DB)
 
 Aspecto de la respuesta:
 
@@ -80,7 +80,7 @@ Los metadatos constan de un título ("title") y una lista de variables para la t
 
 Ejemplo:
 
-👉(https://www.eustat.eus/bankupx/api/v1/es/DB/PX_050403_cpra_tab_a_25.px)
+👉 [https://www.eustat.eus/bankupx/api/v1/es/DB/PX_050403_cpra_tab_a_25.px](https://www.eustat.eus/bankupx/api/v1/es/DB/PX_050403_cpra_tab_a_25.px)
 
 Aspecto de la respuesta:
 
@@ -253,9 +253,9 @@ Para realizar esta consulta es necesario conocer qué variables y valores contie
 
 `https://www.eustat.eus/bankupx/pxweb/{idioma}/DB/-/{id}`
 
-Por ejemplo: 👉 (https://www.eustat.eus/bankupx/pxweb/es/DB/-/PX_170112_cpib_pib_a_01.px)
+Por ejemplo: 👉 [https://www.eustat.eus/bankupx/pxweb/es/DB/-/PX_170112_cpib_pib_a_01.px](https://www.eustat.eus/bankupx/pxweb/es/DB/-/PX_170112_cpib_pib_a_01.px)
 
-Se pueden consultar todas las tablas en en esta dirección  👉(https://www.eustat.eus/bankupx/pxweb/es/DB/-/)
+Se pueden consultar todas las tablas en en esta dirección  👉 [https://www.eustat.eus/bankupx/pxweb/es/DB/-/](https://www.eustat.eus/bankupx/pxweb/es/DB/-/)
 
 A continuación, se muestran los pasos necesarios para configurar la consulta `POST` utilizando el asistente:
 
@@ -273,7 +273,7 @@ Haz clic en el apartado **“Disponer de esta tabla en su aplicación”**. Esto
 
 La interfaz ayuda al usuario a generar y editar el código que se utilizará en la API. Está pensada para generar el código de las consultas y no para su uso en producción.
 
-Para leer los archivos JSON de salida de las solicitudes de datos descritas en esta página, debe utilizarse un programa o lenguaje de programación que permita procesar este formato. Se han elaborado tutoriales y ejemplos de código en  [**R**](../code_examples/es/tutorial_R_es.Rmd), [**Python**](../code_examples/es/tutorial_Python_es.ipynb) y [**JavaScript**](https://uxue-sudupe.github.io/API-Eustat/code_examples/es/tutorial_highcharts_es.html) para facilitar a los usuarios el uso de la API de Eustat.
+Para leer los archivos JSON de salida de las solicitudes de datos descritas en esta página, debe utilizarse un programa o lenguaje de programación que permita procesar este formato. Se han elaborado tutoriales y ejemplos de código en  [**R**](../code_examples/es/tutorial_R_es.Rmd), [**Python**](../code_examples/es/tutorial_Python_es.ipynb) y [**JavaScript**](https://eustat.github.io/API-Eustat/code_examples/es/tutorial_highcharts_es.html) para facilitar a los usuarios el uso de la API de Eustat.
 
 ### Formatos de salida
 
