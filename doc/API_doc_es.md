@@ -263,7 +263,7 @@ A continuación, se muestran los pasos necesarios para configurar la consulta `P
 
 Queremos seleccionar algunos valores concretos de la tabla "Producto interior bruto (PIB) de la C.A. de Euskadi (oferta) por territorio histórico, rama de actividad (A-38), tipo de dato y de medida. 1995 - 2023" que se encuentra en esta dirección:
 
-https://es.eustat.eus/bankupx/pxweb/es/DB/-/PX_170112_cpib_pib_a_01.px
+[https://es.eustat.eus/bankupx/pxweb/es/DB/-/PX_170112_cpib_pib_a_01.px](https://es.eustat.eus/bankupx/pxweb/es/DB/-/PX_170112_cpib_pib_a_01.px)
 
 ![Selección de variables y valores](../img/PIB_seleccion.PNG)
 
@@ -273,7 +273,7 @@ Haz clic en el apartado **“Disponer de esta tabla en su aplicación”**. Esto
 
 La interfaz ayuda al usuario a generar y editar el código que se utilizará en la API. Está pensada para generar el código de las consultas y no para su uso en producción.
 
-Para leer los archivos JSON de salida de las solicitudes de datos descritas en esta página, debe utilizarse un programa o lenguaje de programación que permita procesar este formato. Se han elaborado tutoriales y ejemplos de código en  [**R**](../code_examples/es/tutorial_R_es.Rmd), [**Python**](../code_examples/es/tutorial_Python_es.ipynb) y [**JavaScript**](https://eustat.github.io/API-Eustat/code_examples/es/tutorial_highcharts_es.html) para facilitar a los usuarios el uso de la API de Eustat.
+Para leer los archivos JSON de salida de las solicitudes de datos descritas en esta página, debe utilizarse un programa o lenguaje de programación que permita procesar este formato. Se han elaborado tutoriales y ejemplos de código en  [**R**](https://github.com/eustat/API-Eustat/blob/main/code_examples/es/tutorial_R_es.ipynb), [**Python**](https://github.com/eustat/API-Eustat/blob/main/code_examples/es/tutorial_Python_es.ipynb) y [**JavaScript**](https://eustat.github.io/API-Eustat/code_examples/es/tutorial_highcharts_es.html) para facilitar a los usuarios el uso de la API de Eustat.
 
 ### Formatos de salida
 
