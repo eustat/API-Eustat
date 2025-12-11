@@ -1,46 +1,61 @@
 openapi: 3.0.0
 info:
   title: Eustaten APIa
-  description: >
-    Eustaten APIak sarbide zuzena eta automatizatua ematen du Euskal AEko datu estatistiko ofizialetara.
-    Informazio egituratua kontsultatzeko, filtratzeko eta deskargatzeko aukera ematen du, ondoren aztertu eta berrerabiltzeko.
-
-    APIak bi datu-iturriren informazioa eskaintzen du:
-      1) Eustaten datu-bankua (PX-Web motakoa)
-      2) Garapen Jasangarriko Helburuen (GJH / ODS) adierazleen plataforma, Open SDG oinarritua
-
   version: 1.1.0
+  description: >
+    Eustaten APIak bi datu-iturriren sarbidea eskaintzen du:
+
+      1) **Eustaten datu-bankua (PX-Web oinarritua)**  
+         Taulen katalogoa, metadatuak eta datuak JSON-stat formatuan eskuratzeko.
+
+      2) **Garapen Jasangarriko Helburuen (GJH / SDG) adierazleen plataforma**  
+         Open SDG teknologiaren bidez eraikia, eta datuak CSV, JSON eta ZIP formatuetan eskuragarri.
+
+    Bi zerbitzuak independenteak dira eta API honetan modu bereizian dokumentatzen dira.
 
 servers:
   - url: https://www.eustat.eus/bankupx/api/v1
-    description: Eustaten datu-bankuko API zerbitzaria (PX-Web)
+    description: >
+      **Eustaten datu-bankua (PX-Web)**  
+      Taulen katalogoa, metadatuak eta datu estatistikoak JSON-stat formatuan eskuratzeko API nagusia.
+
   - url: https://sdg.eustat.eus/sdg-data-prod
-    description: Garapen Jasangarriko Helburuen (GJH) datuen API publikoa
+    description: >
+      **GJH / SDG adierazleen API publikoa (Open SDG)**  
+      CSV eta JSON bidezko sarbidea eta deskarga masiboa ZIP formatuan.
+
+tags:
+  - name: Datu-bankua (PX-Web)
+    description: Eustaten datu-bankuko taulen eta datuen API ofiziala.
+
+  - name: GJH / SDG – Adierazleak
+    description: Garapen Jasangarriko Helburuen adierazleen datu eta metadatuetarako sarbide publikoa.
+
 
 paths:
 
-  ###############################################
-  # 1. Datu-bankua / Banco de datos
-  ###############################################
+  ########################################################
+  # 1) Eustaten datu-bankua (PX-Web)
+  ########################################################
 
   /{lang}/DB:
     get:
-      tags:
-        - Datu-bankua
-      summary: Kontsultatu taulen katalogoa
-      description: Datu-bankuko taulen katalogoa JSON formatuan itzultzen du.
+      tags: [Datu-bankua (PX-Web)]
+      summary: Taulen katalogoa eskuratu
+      description: >
+        Datu-bankuan eskuragarri dauden taula guztien katalogoa JSON formatuan itzultzen du.
       parameters:
         - name: lang
           in: path
           required: true
-          description: Erantzunaren hizkuntza
+          description: Erantzunaren hizkuntza.
           schema:
             type: string
             enum: [eu, es, en]
             default: eu
       responses:
         '200':
-          description: Datuen katalogoa arazorik gabe lortu da
+          description: Taulen katalogoa arazorik gabe eskuratu da.
           content:
             application/json:
               schema:
@@ -50,33 +65,36 @@ paths:
                   properties:
                     id:
                       type: string
-                      description: Taularen identifikatzailea
+                      description: Taularen identifikatzailea (.px luzapenarekin).
                     type:
                       type: string
-                      description: Baliabide mota (t = taula)
+                      description: Baliabide mota (t = taula).
                     text:
                       type: string
-                      description: Datu multzoaren deskribapena
+                      description: Taularen deskribapena.
                     updated:
                       type: string
                       format: date-time
-                      description: Azken eguneraketa data
+                      description: Azken eguneraketaren data eta ordua.
               example:
                 - id: "PX_010123_cepv3_lhc06.px"
                   type: "t"
-                  text: "≥2 urteko biztanleria, etxeko hizkuntza eta adin-taldeka"
+                  text: "≥2 urteko biztanleria, etxeko hizkuntza eta adin-taldeka. 1991–2021"
                   updated: "2024-04-12T08:15:45"
-
+                - id: "PX_fepycl_pc02cm.px"
+                  type: "t"
+                  text: "KPIa lurraldearen eta hilaren arabera. Oinarria 2016."
+                  updated: "2021-02-16T11:15:00"
         '404':
-          description: Katalogoa ez da aurkitu
+          description: Katalogoa ez da aurkitu.
 
 
   /{lang}/DB/{id}:
     get:
-      tags:
-        - Taulen metadatuak
-      summary: Taula baten metadatuak lortu
-      description: Taula espezifiko baten metadatuak JSON formatuan itzultzen ditu.
+      tags: [Datu-bankua (PX-Web)]
+      summary: Taula baten metadatuak eskuratu
+      description: >
+        Zehaztutako taularen metadatuak JSON formatuan itzultzen ditu: aldagaiak, balioak eta etiketak.
       parameters:
         - name: lang
           in: path
@@ -88,12 +106,12 @@ paths:
         - name: id
           in: path
           required: true
-          description: Taularen identifikatzailea (adibidez PX_170115_ccet_cet01tb.px)
+          description: Taularen identifikatzailea (adib. PX_170115_ccet_cet01tb.px).
           schema:
             type: string
       responses:
         '200':
-          description: Metadatuak arazorik gabe lortu dira
+          description: Metadatuak arazorik gabe eskuratu dira.
           content:
             application/json:
               schema:
@@ -112,12 +130,10 @@ paths:
                           type: string
                         values:
                           type: array
-                          items:
-                            type: string
+                          items: { type: string }
                         valueTexts:
                           type: array
-                          items:
-                            type: string
+                          items: { type: string }
               example:
                 title: "Biztanleria lurralde historikoaren eta sexuaren arabera"
                 variables:
@@ -125,20 +141,25 @@ paths:
                     text: "sexua"
                     values: ["10", "20"]
                     valueTexts: ["Guztira", "Emakumeak"]
-
+                  - code: "periodo"
+                    text: "aldia"
+                    values: ["20010101", "20020101"]
+                    valueTexts: ["2001/01/01", "2002/01/01"]
         '404':
-          description: Taula ez da aurkitu
+          description: Taula ez da aurkitu.
 
 
     post:
-      tags:
-        - Taulen datuak
-      summary: Taula batetik datuak lortu
+      tags: [Datu-bankua (PX-Web)]
+      summary: Taulako datuak eskuratu
       description: >
-        POST kontsulta baten bidez datu-bankuko taula baten datuak JSON-stat formatuan lortzen dira.
-        Taula osoa kontsulta daiteke query hutsa erabiliz: {"query": []}.
+        POST eskaera baten bidez, taula baten datuak JSON-stat formatuan eskuratzen dira.
 
-        Aldagaiak zehazteko gomendatzen da taularen hautaketa-interfazea erabiltzea:
+        Taula osoa kontsulta daiteke query hutsa erabiliz:
+        { "query": [] }
+
+        Aldagai zehatzak aukeratzeko, kontsulta JSON formatuan egin behar da.
+        Hautaketa-interfazea erabil daiteke kontsulta sortzeko:
         https://www.eustat.eus/bankupx/pxweb/{lang}/DB/-/{id}
       parameters:
         - name: lang
@@ -147,13 +168,11 @@ paths:
           schema:
             type: string
             enum: [eu, es, en]
-            default: eu
         - name: id
           in: path
           required: true
           schema:
             type: string
-
       requestBody:
         required: true
         content:
@@ -166,17 +185,14 @@ paths:
                   items:
                     type: object
                     properties:
-                      code:
-                        type: string
+                      code: { type: string }
                       selection:
                         type: object
                         properties:
-                          filter:
-                            type: string
+                          filter: { type: string }
                           values:
                             type: array
-                            items:
-                              type: string
+                            items: { type: string }
                 response:
                   type: object
                   properties:
@@ -198,71 +214,69 @@ paths:
 
       responses:
         '200':
-          description: Datuak arazorik gabe lortu dira
+          description: Datuak arazorik gabe eskuratu dira.
           content:
             application/json:
               schema:
                 type: object
               example:
                 dataset:
-                  label: "Biztanleria sexuaren eta aldiaren arabera"
+                  label: "Biztanleria sexuaren eta urtearen arabera"
                   dimension:
                     id: ["sex", "time"]
                     size: [1, 2]
                   value: [100, 150]
-
         '400':
-          description: Eskaera baliogabea
+          description: Eskaera baliogabea.
         '404':
-          description: Taula ez da aurkitu
+          description: Taula ez da aurkitu.
 
 
-  ##########################################################
-  # 2. Garapen Jasangarriko Helburuak (GJH / SDG)
-  ##########################################################
 
-  /sdg/data/{lang}/data/{indicatorCode}.csv:
+  ########################################################
+  # 2) GJH / SDG ADIERAZLEAK (Open SDG)
+  ########################################################
+
+  /{lang}/data/{indicatorCode}.csv:
     get:
-      tags:
-        - GJH (SDG) — Adierazleen datuak
-      summary: Adierazle baten datuak CSV formatuan lortu
+      tags: [GJH / SDG – Adierazleak]
+      summary: Adierazle baten datuak CSV formatuan eskuratu
       description: >
-        GJH adierazle zehatz baten datu-fitxategia CSV formatuan itzultzen du.
-        Datuak erabat bereizita eskaintzen dira.
+        GJH adierazle jakin baten datu-fitxategia CSV formatuan itzultzen du.
       parameters:
         - name: lang
           in: path
-          description: Hizkuntza (eu, es, en)
           required: true
           schema:
             type: string
             enum: [eu, es, en]
         - name: indicatorCode
           in: path
-          description: Adierazlearen kodea (adib. 1-2-1)
           required: true
+          description: Adierazlearen kodea (adib: 1-2-1).
           schema:
             type: string
       responses:
         '200':
-          description: CSV fitxategia zuzen lortu da
+          description: CSV datuak arazorik gabe eskuratu dira.
           content:
             text/csv:
               schema:
                 type: string
-              example: "Series,Value,Year\nTotal,15000,2023"
-
+              example: |
+                Year,Value
+                2020,14.1
+                2021,13.7
         '404':
-          description: Adierazlea ez da aurkitu
+          description: Adierazlea ez da aurkitu.
 
 
-  /sdg/data/{lang}/data/{indicatorCode}.json:
+  /{lang}/data/{indicatorCode}.json:
     get:
-      tags:
-        - GJH (SDG) — Adierazleen datuak
-      summary: Adierazle baten datuak JSON formatuan lortu
+      tags: [GJH / SDG – Adierazleak]
+      summary: Adierazle baten datuak JSON formatuan eskuratu
       description: >
-        GJH adierazle zehatz baten datuak JSON formatuan itzultzen ditu, metadatuak barne.
+        GJH adierazle baten datuak eta metadatuak JSON formatuan itzultzen ditu.
       parameters:
         - name: lang
           in: path
@@ -275,30 +289,29 @@ paths:
           required: true
           schema:
             type: string
-
       responses:
         '200':
-          description: JSON datuak arazorik gabe lortu dira
+          description: JSON datuak arazorik gabe eskuratu dira.
           content:
             application/json:
               example:
                 indicator: "1.2.1"
-                series: "Income distribution"
+                description: "Pobrezia tasa murriztea"
                 data:
                   - year: 2020
                     value: 14.1
                   - year: 2021
                     value: 13.7
         '404':
-          description: Adierazlea ez da aurkitu
+          description: Adierazlea ez da aurkitu.
 
 
-  /sdg/data/{lang}/zip/all_indicators.zip:
+  /{lang}/zip/all_indicators.zip:
     get:
-      tags:
-        - GJH (SDG) — Deskarga masiboa
-      summary: Adierazle guztien deskarga masiboa CSV formatuan
-      description: CSV fitxategi guztiak ZIP formatuan deskargatzen ditu.
+      tags: [GJH / SDG – Adierazleak]
+      summary: Adierazle guztien deskarga masiboa
+      description: >
+        Adierazle guztien CSV fitxategiak ZIP formatuan deskargatzen ditu.
       parameters:
         - name: lang
           in: path
@@ -308,11 +321,11 @@ paths:
             enum: [eu, es, en]
       responses:
         '200':
-          description: ZIP fitxategia arazorik gabe deskargatu da
+          description: ZIP fitxategia arazorik gabe deskargatu da.
           content:
             application/zip:
               schema:
                 type: string
-              example: (ZIP fitxategia)
+              example: "(ZIP fitxategia)"
         '404':
-          description: Ez da aurkitu eskura dagoen deskargarik
+          description: Deskarga ez da aurkitu.
