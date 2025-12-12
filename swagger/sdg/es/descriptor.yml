@@ -1,0 +1,176 @@
+openapi: 3.0.0
+
+info:
+  title: API de Indicadores de Desarrollo Sostenible (ODS) de Eustat
+  description: |
+    Esta API proporciona acceso programático a los datos y metadatos de los
+    indicadores de los Objetivos de Desarrollo Sostenible (ODS) publicados por Eustat
+    mediante la plataforma Open SDG.
+
+    Los datos están disponibles en formatos abiertos (CSV y JSON) y organizados
+    mediante rutas predecibles, lo que permite su reutilización automática sin
+    necesidad de autenticación.
+
+    La API incluye acceso a:
+    - Datos desagregados de indicadores
+    - Datos agregados (headlines)
+    - Relaciones entre desagregaciones (edges)
+    - Metadatos
+    - Descargas masivas
+    - Estado de reporte y traducciones
+  version: 1.0.0
+
+servers:
+  - url: https://sdg.eustat.eus/sdg-data-prod
+    description: Servidor de datos ODS de Eustat (Open SDG)
+
+tags:
+  - name: Indicadores ODS
+    description: Acceso a datos de indicadores individuales
+  - name: Descargas masivas
+    description: Descarga completa de indicadores
+  - name: Metadatos y soporte
+    description: Metadatos, traducciones y estado de reporte
+
+paths:
+
+  /{lang}/data/{indicator}.csv:
+    get:
+      tags:
+        - Indicadores ODS
+      summary: Datos desagregados de un indicador (CSV)
+      description: Devuelve los datos completamente desagregados de un indicador ODS en formato CSV.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Idioma
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          description: Código del indicador ODS (por ejemplo, 1-2-1)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datos CSV del indicador
+
+  /{lang}/data/{indicator}.json:
+    get:
+      tags:
+        - Indicadores ODS
+      summary: Datos desagregados de un indicador (JSON)
+      description: Devuelve los datos completamente desagregados de un indicador ODS en formato JSON.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datos JSON del indicador
+
+  /{lang}/headline/{indicator}.json:
+    get:
+      tags:
+        - Indicadores ODS
+      summary: Datos agregados (headline) de un indicador
+      description: Devuelve únicamente los valores agregados principales de un indicador ODS.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datos headline del indicador
+
+  /{lang}/meta/{indicator}.json:
+    get:
+      tags:
+        - Metadatos y soporte
+      summary: Metadatos de un indicador ODS
+      description: Devuelve los metadatos completos de un indicador ODS en formato JSON.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Metadatos del indicador
+
+  /{lang}/zip/all_indicators.zip:
+    get:
+      tags:
+        - Descargas masivas
+      summary: Descarga masiva de todos los indicadores (CSV)
+      description: Descarga un archivo ZIP con todos los indicadores ODS en formato CSV.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+      responses:
+        '200':
+          description: Archivo ZIP con todos los indicadores
+
+  /{lang}/stats/reporting.json:
+    get:
+      tags:
+        - Metadatos y soporte
+      summary: Estado de reporte de los indicadores
+      description: Devuelve información sobre el estado de reporte de los indicadores ODS.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+      responses:
+        '200':
+          description: Estado de reporte
+
+  /{lang}/translations/translations.json:
+    get:
+      tags:
+        - Metadatos y soporte
+      summary: Traducciones de la plataforma ODS
+      description: Devuelve todas las traducciones utilizadas en la plataforma Open SDG.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [es, eu, en]
+      responses:
+        '200':
+          description: Traducciones
