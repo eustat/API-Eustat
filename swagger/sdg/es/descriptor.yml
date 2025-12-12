@@ -1,7 +1,7 @@
 openapi: 3.0.0
 
 info:
-  title: API de Indicadores de Desarrollo Sostenible (ODS) de Eustat
+  title: Servicio de datos de Indicadores de Desarrollo Sostenible (ODS) de Eustat
   description: |
     Esta API proporciona acceso programático a los datos y metadatos de los
     indicadores de los Objetivos de Desarrollo Sostenible (ODS) publicados por Eustat
