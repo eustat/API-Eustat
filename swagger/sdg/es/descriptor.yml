@@ -32,10 +32,6 @@ info:
     ```
     https://sdg.eustat.eus/sdg-data-prod/es/zip/all_indicators.zip
     ```
-
-    Estos recursos están pensados para descarga directa desde el navegador
-    o para su uso desde scripts y herramientas externas (curl, wget, R, Python, etc.).
-
   version: 1.0.0
 
 servers:
