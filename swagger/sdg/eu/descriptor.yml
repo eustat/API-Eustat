@@ -43,7 +43,7 @@ tags:
   - name: GJH adierazleak
     description: Adierazleen JSON datuetarako sarbidea
   - name: Metadatuak eta laguntza
-    description: Metadatuak, txosten-egoera eta itzulpenak
+    description: Metadatuak, egoera-txostena eta itzulpenak
 
 paths:
 
@@ -132,9 +132,9 @@ paths:
     get:
       tags:
         - Metadatuak eta laguntza
-      summary: GJH adierazleen txosten-egoera
+      summary: GJH adierazleen egoera-txostena
       description: |
-        GJH adierazleen txosten-egoerari buruzko informazioa
+        GJH adierazleen egoerari buruzko informazioa
         itzultzen du JSON formatuan.
       parameters:
         - name: lang
@@ -146,7 +146,7 @@ paths:
             enum: [es, eu, en]
       responses:
         '200':
-          description: GJH adierazleen txosten-egoera
+          description: GJH adierazleen egoera-txostena
 
   /{lang}/translations/translations.json:
     get:
