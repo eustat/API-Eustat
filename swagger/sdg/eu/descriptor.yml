@@ -1,0 +1,225 @@
+openapi: 3.0.0
+
+info:
+  title: Eustateko Garapen Jasangarrirako adierazleen APIa
+  description: |
+    API honek Eustatek Open SDG plataformaren bidez argitaratutako
+    Garapen Jasangarriko Helburuen (GJH) adierazleen datu eta metadatuetara
+    sarbide programatikoa eskaintzen du.
+
+    Swagger honek JSON formatuko irteera duten endpointak soilik dokumentatzen ditu,
+    horiek baitira esplorazio interaktiborako egokienak.
+
+    ## CSV eta ZIP formatuko datuen deskarga (Swagger-etik kanpo)
+
+    Swagger honetan dokumentatutako JSON endpointez gain, datuak zuzenean
+    deskarga daitezke CSV eta ZIP formatuetan, aurrez zehaztutako URLen bidez:
+
+    ### Adierazle baten CSV fitxategia (erabat desagregatutako datuak)
+    ```
+    https://sdg.eustat.eus/sdg-data-prod/{lang}/data/{indicator}.csv
+    ```
+    Adibidea:
+    ```
+    https://sdg.eustat.eus/sdg-data-prod/es/data/1-2-1.csv
+    ```
+
+    ### Adierazle guztien deskarga masiboa (CSVak ZIP fitxategi batean)
+    ```
+    https://sdg.eustat.eus/sdg-data-prod/{lang}/zip/all_indicators.zip
+    ```
+    Adibidea:
+    ```
+    https://sdg.eustat.eus/sdg-data-prod/es/zip/all_indicators.zip
+    ```
+
+  version: 1.0.0
+
+servers:
+  - url: https://sdg.eustat.eus/sdg-data-prod
+    description: Eustateko GJH datuen zerbitzaria (Open SDG)
+
+tags:
+  - name: GJH adierazleak
+    description: Adierazleen JSON datuetarako sarbidea
+  - name: Metadatuak eta laguntza
+    description: Metadatuak, txosten-egoera eta itzulpenak
+
+paths:
+
+  /{lang}/data/{indicator}.json:
+    get:
+      tags:
+        - GJH adierazleak
+      summary: Adierazle baten datu desagregatuak (JSON)
+      description: |
+        GJH adierazle baten datu erabat desagregatuak itzultzen ditu
+        JSON formatuan.
+
+        Adierazlearentzat eskuragarri dauden dimentsio eta balio guztiak hartzen ditu.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          description: GJH adierazlearen kodea (adibidez, 1-2-1)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Adierazlearen JSON datu desagregatuak
+
+  /{lang}/headline/{indicator}.json:
+    get:
+      tags:
+        - GJH adierazleak
+      summary: EAE mailako datu agregatuak (headline)
+      description: |
+        GJH adierazle baten balio agregatu nagusiak (headline)
+        Euskal Autonomia Erkidegoaren mailan itzultzen ditu,
+        JSON formatuan.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          description: GJH adierazlearen kodea
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Adierazlearen datu agregatuak (headline)
+
+  /{lang}/edges/{indicator}.json:
+    get:
+      tags:
+        - GJH adierazleak
+      summary: Desagregazioen arteko erlazioak (edges)
+      description: |
+        GJH adierazle baten desagregazio desberdinen arteko
+        erlazioak itzultzen ditu JSON formatuan.
+
+        Endpoint honek adierazlearen dimentsioen arteko
+        loturak deskribatzen ditu.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          description: GJH adierazlearen kodea
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Desagregazioen arteko erlazioen datuak
+
+  /{lang}/comb/{indicator}.json:
+    get:
+      tags:
+        - GJH adierazleak
+      summary: Adierazlearen datu konbinatuak (data + edges)
+      description: |
+        GJH adierazle baten datu erabat desagregatuak eta
+        desagregazioen arteko erlazioak (edges) JSON bakar batean
+        itzultzen ditu.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          description: GJH adierazlearen kodea
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Adierazlearen datu konbinatuak
+
+  /{lang}/meta/{indicator}.json:
+    get:
+      tags:
+        - Metadatuak eta laguntza
+      summary: GJH adierazle baten metadatuak
+      description: |
+        GJH adierazle baten metadatu osoak itzultzen ditu JSON formatuan,
+        definizioak, iturriak, metodologia eta oharrak barne.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+        - name: indicator
+          in: path
+          required: true
+          description: GJH adierazlearen kodea
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Adierazlearen metadatuak
+
+  /{lang}/stats/reporting.json:
+    get:
+      tags:
+        - Metadatuak eta laguntza
+      summary: GJH adierazleen txosten-egoera
+      description: |
+        GJH adierazleen txosten-egoerari buruzko informazioa
+        itzultzen du JSON formatuan.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+      responses:
+        '200':
+          description: GJH adierazleen txosten-egoera
+
+  /{lang}/translations/translations.json:
+    get:
+      tags:
+        - Metadatuak eta laguntza
+      summary: GJH plataformako itzulpenak
+      description: |
+        Open SDG plataforman erabiltzen diren itzulpen guztiak
+        itzultzen ditu JSON formatuan.
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [es, eu, en]
+      responses:
+        '200':
+          description: Plataformako itzulpenak
