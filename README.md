@@ -11,7 +11,7 @@ APIak modu bisual eta intuitiboan esploratzeko, Swagger bisoreak erabil daitezke
 🔹 [Eustaten API nagusiaren Swagger bisorea](https://eustat.github.io/API-Eustat/swagger/eu/)
 Eustateko banku-datuko datu estatistiko orokorretarako APIaren endpoint eta kontsulta guztiak biltzen ditu.
 
-🔹 [Eustateko Garapen Jasangarriko Helburuen (GJH) adierazleen datu-zerbitzua](https://eustat.github.io/API-Eustat/swagger/sdg/eu/)
+🔹 [Eustateko Garapen Jasangarrirako Helburuen (GJH) adierazleen datu-zerbitzua](https://eustat.github.io/API-Eustat/swagger/sdg/eu/)
 2030 Agendako Garapen Jasangarrirako adierazleak kontsultatzeko API espezifikoa dokumentatzen du.
 
 
