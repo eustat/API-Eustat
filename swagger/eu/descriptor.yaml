@@ -1,51 +1,32 @@
 openapi: 3.0.0
 info:
   title: Eustaten APIa
-  version: "1.1.0"
-  description: >
-    Eustaten APIak bi datu-iturriren sarbidea eskaintzen du:
-
-      1) **Eustaten datu-bankua (PX-Web)**: taulen katalogoa, metadatuak eta datuak JSON-stat formatuan eskuratzeko.
-
-      2) **GJH / SDG adierazleen plataforma (Open SDG)**: CSV, JSON eta ZIP formatuetan.
+  description: Eustaten APIak sarbide zuzena eta automatizatua ematen du Euskal AEko datu estatistiko ofizialetara. Informazio egituratua kontsultatzeko, filtratzeko eta deskargatzeko aukera ematen du, ondoren aztertu eta berrerabiltzeko.
+  version: 1.0.0
 
 servers:
   - url: https://www.eustat.eus/bankupx/api/v1
-    description: >
-      **Eustaten datu-bankua (PX-Web)** — Taulak eta JSON-stat formatuan datu estatistikoak.
-  - url: https://sdg.eustat.eus/sdg-data-prod
-    description: >
-      **GJH / SDG adierazleen API publikoa** — CSV, JSON eta ZIP formatuak.
-
-tags:
-  - name: Datu-bankua (PX-Web)
-    description: Eustaten datu-bankuko taulen eta datuen APIa.
-  - name: GJH / SDG – Adierazleak
-    description: Garapen Jasangarriko Helburuen API publikoa.
+    description: Eustaten datu irekien zerbitzaria
 
 paths:
-
-  ###########################################
-  # 1) Datu-bankua (PX-Web)
-  ###########################################
-
-  "/{lang}/DB":
+  /{lang}/DB:
     get:
-      tags: ["Datu-bankua (PX-Web)"]
-      summary: Taulen katalogoa eskuratu
-      description: Datu-bankuan eskuragarri dauden taula guztien katalogoa JSON formatuan itzultzen du.
+      tags:
+        - Datuen katalogoa
+      summary: Kontsultatu taulen katalogoa
+      description: Datu-bankuko taulen katalogoa JSON formatuan itzultzen du.
       parameters:
         - name: lang
           in: path
           required: true
+          description: Erantzunaren hizkuntza
           schema:
             type: string
             enum: [eu, es, en]
             default: eu
-          description: Erantzunaren hizkuntza.
       responses:
-        "200":
-          description: Taulen katalogoa zuzen eskuratu da.
+        '200':
+          description: Datuen katalogoa arazorik gabe lortu da
           content:
             application/json:
               schema:
@@ -55,101 +36,126 @@ paths:
                   properties:
                     id:
                       type: string
-                      description: Taularen identifikatzailea.
+                      description: Taularen identifikatzailea
                     type:
                       type: string
-                      description: Baliabide mota (t = taula).
+                      description: Baliabide mota
                     text:
                       type: string
-                      description: Taularen deskribapena.
+                      description: Datu multzoaren deskribapena
                     updated:
                       type: string
                       format: date-time
-                      description: Azken eguneraketa.
+                      description: Azken eguneraketa data
               example:
                 - id: "PX_010123_cepv3_lhc06.px"
                   type: "t"
-                  text: "≥2 urteko biztanleria etxeko hizkuntzaren arabera."
+                  text: "Euskal AEko \u003E=2 urteko biztanleria, lurraldearen, etxeko hizkuntzaren, euskara-maila orokorraren eta adinaren arabera. 1991 - 2021"
                   updated: "2024-04-12T08:15:45"
                 - id: "PX_fepycl_pc02cm.px"
                   type: "t"
-                  text: "KPIa lurraldearen eta hilaren arabera."
+                  text: "Euskal AEko eta Estatuko kontsumorako prezioen indize orokorra (KPI), Lurralde Historikoaren, indizearen eta hilaren arabera. Oinarria 2016 (2002tik)"
                   updated: "2021-02-16T11:15:00"
-        "404":
-          description: Katalogoa ez da aurkitu.
+        '404':
+          description: Katalogoa ez da aurkitu
 
-  "/{lang}/DB/{id}":
+  /{lang}/DB/{id}:
     get:
-      tags: ["Datu-bankua (PX-Web)"]
-      summary: Taula baten metadatuak
-      description: Taula espezifiko baten metadatuak JSON formatuan itzultzen ditu.
+      tags:
+        - Taula baten metadatuak
+      summary: Taula baten metadatuak lortu
+      description: Taula espezifiko baten metadatuak itzultzen ditu JSON formatuan.
       parameters:
         - name: lang
           in: path
           required: true
-          schema: { type: string, enum: [eu, es, en], default: eu }
+          description: Erantzunaren hizkuntza
+          schema:
+            type: string
+            enum: [eu, es, en]
+            default: eu
         - name: id
           in: path
           required: true
-          description: Taularen identifikatzailea (.px)
-          schema: { type: string }
+          description: Taularen identifikatzailea (adibidez PX_170115_ccet_cet01tb.px)
+          schema:
+            type: string
       responses:
-        "200":
-          description: Metadatuak arazorik gabe eskuratu dira.
+        '200':
+          description: Metadatuak arazorik gabe lortu dira
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  title: { type: string }
+                  title:
+                    type: string
+                    description: Datu-multzoaren izenburua
                   variables:
                     type: array
                     items:
                       type: object
                       properties:
-                        code: { type: string }
-                        text: { type: string }
+                        code:
+                          type: string
+                          description: Aldagaiaren kodea
+                        text:
+                          type: string
+                          description: Aldagaiaren deskribapena
                         values:
                           type: array
-                          items: { type: string }
+                          items:
+                            type: string
+                          description: Erabili daitezkeen balioen zerrenda
                         valueTexts:
                           type: array
-                          items: { type: string }
+                          items:
+                            type: string
+                          description: Balioak deskribatzeko etiketak
               example:
-                title: "Biztanleria lurralde historikoaren eta sexuaren arabera"
+                title: "Population of the Basque Country by territorial area, large age groups and sex"
                 variables:
+                  - code: "ámbitos territoriales"
+                    text: "lurralde eremua"
+                    values: ["00001", "01", "48", "20"]
+                    valueTexts: ["Euskal AE", "Araba/Álava", "Bizkaia", "Gipuzkoa"]
                   - code: "sexo"
                     text: "sexua"
-                    values: ["10", "20"]
-                    valueTexts: ["Guztira", "Emakumeak"]
+                    values: ["10", "20", "30"]
+                    valueTexts: ["Guztira", "Gizonak", "Emakumeak"]
                   - code: "periodo"
                     text: "aldia"
                     values: ["20010101", "20020101"]
                     valueTexts: ["2001/01/01", "2002/01/01"]
-        "404":
-          description: Taula ez da aurkitu.
+        '404':
+          description: Taula ez da aurkitu
 
     post:
-      tags: ["Datu-bankua (PX-Web)"]
-      summary: Taula bateko datuak eskuratu
-      description: >
-        POST eskaera baten bidez, taula baten datuak JSON-stat formatuan eskuratu.
+      tags:
+        - Taula bateko datuak
+      summary: Taula batetik datuak lortu
+      description: |
+        POST kontsulta bat egiten du datu-bankuko taula baten datuak lortzeko JSON-stat formatuan. Taula osoa kontsulta daiteke query hutsa egiten bada: {"query": []}.
 
-        Taula osoa kontsulta daiteke query hutsa erabiliz:  
-        **{ "query": [] }**
+        Aldagai edo balio konkreturen baten kontsulta egin nahi izanez gero, JSON formatuan egin behar da. Taularen hautaketa interfazeak kontsulta zehazten lagun dezake. Hautaketa interfazea hemen dago:
 
-        Hautaketa-interfazea kontsultak sortzen laguntzen du:  
-        https://www.eustat.eus/bankupx/pxweb/{lang}/DB/-/{id}
+        **https://www.eustat.eus/bankupx/pxweb/{lang}/DB/-/{id}**
       parameters:
         - name: lang
           in: path
           required: true
-          schema: { type: string, enum: [eu, es, en] }
+          schema:
+            type: string
+            enum: [eu, es, en]
+            default: eu
         - name: id
           in: path
           required: true
-          schema: { type: string }
+          description: Taularen identifikatzailea (adibidez PX_010123_cepv3_lhc04.px)
+          schema:
+            type: string
       requestBody:
+        description: Taulako aldagaiak hautatzeko JSON kontsulta.
         required: true
         content:
           application/json:
@@ -161,8 +167,64 @@ paths:
                   items:
                     type: object
                     properties:
-                      code: { type: string }
+                      code:
+                        type: string
                       selection:
                         type: object
                         properties:
-                          filter: { type: string }
+                          filter:
+                            type: string
+                          values:
+                            type: array
+                            items:
+                              type: string
+                response:
+                  type: object
+                  properties:
+                    format:
+                      type: string
+              example:
+                query:
+                  - code: "lengua"
+                    selection:
+                      filter: "item"
+                      values: ["20"]
+                  - code: "lugar de nacimiento"
+                    selection:
+                      filter: "item"
+                      values: ["00"]
+                  - code: "periodo"
+                    selection:
+                      filter: "item"
+                      values: ["2016", "2021"]
+                response:
+                  format: "json-stat"
+      responses:
+        '200':
+          description: Datuak arazorik gabe lortu dira
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                dataset:
+                  dimension:
+                    id: ["territory", "sex", "time"]
+                    size: [1, 1, 2]
+                    territory:
+                      category:
+                        index: {"00001": 0}
+                        label: {"00001": "Basque Country"}
+                    sex:
+                      category:
+                        index: {"10": 0}
+                        label: {"10": "Total"}
+                    time:
+                      category:
+                        index: {"20200101": 0, "20210101": 1}
+                        label: {"20200101": "2020/01/01", "20210101": "2021/01/01"}
+                  value: [100, 150]
+        '400':
+          description: Errorea eskaeran
+        '404':
+          description: Taula ez da aurkitu
