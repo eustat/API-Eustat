@@ -151,47 +151,54 @@ paths:
         - name: id
           in: path
           required: true
-          description: Taularen identifikatzailea (adibidez PX_010301_cproy_proy01.px)
+          description: Taularen identifikatzailea (adibidez PX_010123_cepv3_lhc04.px)
           schema:
             type: string
       requestBody:
-  description: Taulako aldagaiak hautatzeko JSON kontsulta
-  required: true
-  content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          query:
-            type: array
-            items:
+        description: Taulako aldagaiak hautatzeko JSON kontsulta.
+        required: true
+        content:
+          application/json:
+            schema:
               type: object
               properties:
-                code:
-                  type: string
-                selection:
+                query:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      selection:
+                        type: object
+                        properties:
+                          filter:
+                            type: string
+                          values:
+                            type: array
+                            items:
+                              type: string
+                response:
                   type: object
                   properties:
-                    filter:
+                    format:
                       type: string
-                    values:
-                      type: array
-                      items:
-                        type: string
-          response:
-            type: object
-            properties:
-              format:
-                type: string
-      example:
-        query:
-          - code: "sexo"
-            selection:
-              filter: "item"
-              values:
-                - "30"
-        response:
-          format: "json-stat"
+              example:
+                query:
+                  - code: "lengua"
+                    selection:
+                      filter: "item"
+                      values: ["20"]
+                  - code: "lugar de nacimiento"
+                    selection:
+                      filter: "item"
+                      values: ["00"]
+                  - code: "periodo"
+                    selection:
+                      filter: "item"
+                      values: ["2016", "2021"]
+                response:
+                  format: "json-stat"
       responses:
         '200':
           description: Datuak arazorik gabe lortu dira
