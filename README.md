@@ -6,8 +6,14 @@
 
 ### 2. Swagger bisorea (OpenAPI estandarra)
 
-APIa modu bisual eta intuitiboan esploratzeko, [Swagger bisorea](https://eustat.github.io/API-Eustat/swagger/eu/) erabili daiteke. Nabigatzailetik bertatik 
-APIaren sarrera puntu guztiak (endpoint-ak) eta parametro desberdinak probatu daitezke, eskaerak bidali eta erantzuna zuzena bada, datuak json formatuan deskargatu.
+APIak modu bisual eta intuitiboan esploratzeko, Swagger bisoreak erabil daitezke. Nabigatzailetik bertatik APIen sarrera puntu guztiak (endpoint-ak) eta parametro desberdinak probatu daitezke, eskaerak bidali eta, erantzuna zuzena bada, datuak json formatuan deskargatu.
+
+🔹 [Eustaten API nagusiaren Swagger bisorea](https://eustat.github.io/API-Eustat/swagger/eu/)
+Eustateko banku-datuko datu estatistiko orokorretarako APIaren endpoint eta kontsulta guztiak biltzen ditu.
+
+🔹 [Garapen Jasangarrirako adierazleen APIaren Swagger bisorea](https://eustat.github.io/API-Eustat/swagger/sdg/eu/)
+2030 Agendako Garapen Jasangarrirako adierazleak kontsultatzeko API espezifikoa dokumentatzen du.
+
 
 ### 3. Erabilera adibideak
 Eustaten APIa nola erabili erakusteko, hiru tutorial praktiko prestatu ditugu. **R**, **Python** eta **JavaScript** erabiliz, APIari kontsultak nola egin eta datuak nola prozesatu azaltzen dute, adibideen bidez.
@@ -32,8 +38,13 @@ En la 📘 [Guía técnica de la API de Eustat](doc/API_doc_es.md) se proporcion
 
 ### 2. Visor Swagger (estándar OpenAPI)
 
-Para la exploración visual e intuitiva del API se puede usar el [visor Swagger](https://eustat.github.io/API-Eustat/swagger/es/). Desde el propio navegador se pueden probar todos 
-los puntos de entrada de la API (endpoints) y parámetros, y si la respuesta es correcta, descargar los datos en formato json.
+Para la exploración visual e intuitiva de las APIs se pueden utilizar visores Swagger. Desde el navegador se pueden probar todos los puntos de entrada (endpoints) y parámetros, enviar solicitudes y, si la respuesta es correcta, descargar los datos en formato json.
+
+🔹 [Swagger de la API general de Eustat](https://eustat.github.io/API-Eustat/swagger/es/)
+Incluye todos los endpoints y consultas para el acceso a los datos estadísticos del banco de datos de Eustat
+
+🔹 [Swagger de la API de Indicadores de Desarrollo Sostenible](https://eustat.github.io/API-Eustat/swagger/sdg/es/)
+ Documenta la API específica para la consulta de indicadores de Desarrollo Sostenible de la Agenda 2030
 
 ### 3. Ejemplos de uso
 
