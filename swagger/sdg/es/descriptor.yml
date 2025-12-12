@@ -100,62 +100,7 @@ paths:
       responses:
         '200':
           description: Datos agregados (headline) del indicador
-
-  /{lang}/edges/{indicator}.json:
-    get:
-      tags:
-        - Indicadores ODS
-      summary: Relaciones entre desagregaciones (edges)
-      description: |
-        Devuelve las relaciones entre las distintas desagregaciones
-        de un indicador ODS en formato JSON.
-
-        Este endpoint describe cómo se relacionan las distintas
-        dimensiones del indicador.
-      parameters:
-        - name: lang
-          in: path
-          required: true
-          description: Idioma de la respuesta
-          schema:
-            type: string
-            enum: [es, eu, en]
-        - name: indicator
-          in: path
-          required: true
-          description: Código del indicador ODS
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Datos de relaciones entre desagregaciones
-
-  /{lang}/comb/{indicator}.json:
-    get:
-      tags:
-        - Indicadores ODS
-      summary: Datos combinados del indicador (data + edges)
-      description: |
-        Devuelve en un único JSON los datos completamente desagregados
-        y las relaciones entre desagregaciones (edges) de un indicador ODS.
-      parameters:
-        - name: lang
-          in: path
-          required: true
-          description: Idioma de la respuesta
-          schema:
-            type: string
-            enum: [es, eu, en]
-        - name: indicator
-          in: path
-          required: true
-          description: Código del indicador ODS
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Datos combinados del indicador
-
+  
   /{lang}/meta/{indicator}.json:
     get:
       tags:
