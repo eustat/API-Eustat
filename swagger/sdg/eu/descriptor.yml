@@ -1,7 +1,7 @@
 openapi: 3.0.0
 
 info:
-  title: Eustateko Garapen Jasangarrirako adierazleen APIa
+  title: Eustateko Garapen Jasangarriko Helburuen (GJH) adierazleen datu-zerbitzua
   description: |
     API honek Eustatek Open SDG plataformaren bidez argitaratutako
     Garapen Jasangarriko Helburuen (GJH) adierazleen datu eta metadatuetara
