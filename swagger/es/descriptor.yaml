@@ -151,54 +151,47 @@ paths:
         - name: id
           in: path
           required: true
-          description: Identificador de la tabla (por ejemplo, PX_010123_cepv3_lhc04.px)
+          description: Identificador de la tabla (por ejemplo, PX_010301_cproy_proy01.px)
           schema:
             type: string
       requestBody:
-        description: JSON de la consulta para seleccionar variables específicas de la tabla.
-        required: true
-        content:
-          application/json:
-            schema:
+  description: JSON de la consulta para seleccionar variables específicas de la tabla.
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          query:
+            type: array
+            items:
               type: object
               properties:
-                query:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      selection:
-                        type: object
-                        properties:
-                          filter:
-                            type: string
-                          values:
-                            type: array
-                            items:
-                              type: string
-                response:
+                code:
+                  type: string
+                selection:
                   type: object
                   properties:
-                    format:
+                    filter:
                       type: string
-              example:
-                query:
-                  - code: "lengua"
-                    selection:
-                      filter: "item"
-                      values: ["20"]
-                  - code: "lugar de nacimiento"
-                    selection:
-                      filter: "item"
-                      values: ["00"]
-                  - code: "periodo"
-                    selection:
-                      filter: "item"
-                      values: ["2016", "2021"]
-                response:
-                  format: "json-stat"
+                    values:
+                      type: array
+                      items:
+                        type: string
+          response:
+            type: object
+            properties:
+              format:
+                type: string
+      example:
+        query:
+          - code: "sexo"
+            selection:
+              filter: "item"
+              values:
+                - "30"
+        response:
+          format: "json-stat"
       responses:
         '200':
           description: Datos obtenidos con éxito
