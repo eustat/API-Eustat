@@ -92,7 +92,7 @@ variables_poblacion
 
 ***Hacer una consulta a una tabla para obtener todos los datos***
 
-Para disponer de los datos de las tablas, debemos realizar una consulta a la misma dirección del banco de datos con la función POST. Utilizamos el módulo pyjstat para trabajar con los datos que vamos a descargar en formato json-stat. En este ejemplo, consultamos todos los datos de la tabla del Producto interior bruto (PIB) de la C.A. de Euskadi (oferta) por territorio histórico, rama de actividad (A-38), tipo de dato y de medida.
+Para disponer de los datos de las tablas, debemos realizar una consulta a la misma dirección del banco de datos con la función POST. Utilizamos el módulo rjstat para trabajar con los datos que vamos a descargar en formato json-stat. En este ejemplo, consultamos todos los datos de la tabla del Producto interior bruto (PIB) de la C.A. de Euskadi (oferta) por territorio histórico, rama de actividad (A-38), tipo de dato y de medida.
 
 ```{r}
 
@@ -234,4 +234,5 @@ respuesta_xlsx <- POST(url, body = consulta, encode = "raw", content_type_json()
 writeBin(content(respuesta_xlsx, "raw"), "lengua_materna.xlsx")
 
 ```
+
 
