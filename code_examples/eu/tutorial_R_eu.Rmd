@@ -145,13 +145,13 @@ Eta interesatzen zaigun hautaketa egingo dugu: Euskal AEko langabezia-tasaren da
 
 ***Hautaketaren adibidea***
 
-![](https://raw.githubusercontent.com/uxue-sudupe/API-Eustat/main/img/Langabezia_aukeraketa.png){width="600"}
+![](https://raw.githubusercontent.com/API-Eustat/main/img/Langabezia_aukeraketa.png){width="600"}
 
 Aukeraketa egin ondoren, `"Jarraitu"` eta `"Taula hau eskuragarri egin zure aplikazioan"` sakatuko dugu. Atal honetan, eskaera egin behar zaion URLa eta json kontsulta agertuko dira. Kontsulta hori gure kodean sartuko dugu.
 
 ***Kontsultaren adibidea***
 
-![](https://raw.githubusercontent.com/uxue-sudupe/API-Eustat/main/img/Langabezia_kontsulta.png){width="600"}
+![](https://raw.githubusercontent.com/API-Eustat/main/img/Langabezia_kontsulta.png){width="600"}
 
 ```{r}
 url <- "https://www.eustat.eus/bankupx/api/v1/eu/DB/PX_050403_cpra_tab01.px"
@@ -245,4 +245,5 @@ erantzuna_xlsx <- POST(url, body = kontsulta, encode = "raw", content_type_json(
 writeBin(content(erantzuna_xlsx, "raw"), "ama_hizkuntza.xlsx")
 
 ```
+
 
